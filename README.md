@@ -51,3 +51,7 @@ same ones the dashboard's frontend build uses, point a build elsewhere:
 [secondfactor.ai](https://github.com/lambda-payments/secondfactor.ai)
 repository, which the dashboard's Docs tab bundles. A change to a page belongs
 in both places until the dashboard reads its docs from here.
+
+The SDK pages (`content/sdk-*.md`) are the exception: they live only here, and
+are updated when a release of `secondfactor-node`, `secondfactor-python` or
+`secondfactor-js` changes the public API.

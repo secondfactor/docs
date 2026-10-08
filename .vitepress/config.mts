@@ -122,7 +122,17 @@ export default defineConfig({
     // logo-white.png, the only light-on-dark version of the mark we have.
     logo: { light: "/logo.png", dark: "/logo-dark.png" },
     siteTitle: "SecondFactor Docs",
-    sidebar: [{ text: "API reference", items: pages.map(({ text, link }) => ({ text, link })) }],
+    // The SDK pages (`sdk-*.md`) get their own group below the HTTP reference.
+    sidebar: [
+      {
+        text: "API reference",
+        items: pages.filter(({ file }) => !file.startsWith("sdk-")).map(({ text, link }) => ({ text, link })),
+      },
+      {
+        text: "SDKs",
+        items: pages.filter(({ file }) => file.startsWith("sdk-")).map(({ text, link }) => ({ text, link })),
+      },
+    ],
     outline: [2, 3],
     search: { provider: "local" },
     nav: [{ text: "Dashboard", link: `${appUrl}/dashboard` }],
