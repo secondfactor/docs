@@ -237,6 +237,17 @@ Base URL: `https://api.secondfactor.ai`
 Also: [Authentication](./authentication.md), [Webhooks](./webhooks.md) and
 [Errors](./errors.md).
 
+## SDKs
+
+Libraries that wrap these endpoints, and the verification sessions that let us
+host the screens or let your frontend send codes without a proxy.
+
+| SDK | Package | Runs on |
+|---|---|---|
+| [Node.js](./sdk-node.md) | `secondfactor` on npm | Your server. Holds your API key. |
+| [Python](./sdk-python.md) | `secondfactor` on PyPI | Your server. Holds your API key. |
+| [Browser](./sdk-js.md) | `@secondfactor/js` on npm | The user's browser or React Native app. Never holds your API key. |
+
 ## Conventions
 
 - **Phone numbers** are E.164: `+`, the country code, then the number, with no
