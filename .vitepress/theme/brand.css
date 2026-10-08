@@ -1,0 +1,136 @@
+/* The palette of secondfactor.ai, the marketing site, so the docs read as part
+   of it: navy ink on white, the logo blue as the accent, and cool blue-grey
+   surfaces and hairlines. The raw colours are written once, in the first
+   block; everything after it refers to them.
+
+   The marketing site has no dark theme. The dark one here keeps the
+   dashboard's dark surfaces (frontend/src/shared/styles.css): near-black
+   neutrals with a faint blue cast, and the brand blue lifted for contrast. */
+:root {
+  --sf-ink: #1f2450;
+  --sf-paper: #ffffff;
+  --sf-wash: #f7f9fc;
+  --sf-wash-blue: #f6f9fe;
+  --sf-line: #e6e9f0;
+  --sf-line-2: #d6dce6;
+  --sf-blue: #3078e8;
+  --sf-blue-link: #2461c9;
+  --sf-blue-deep: #1b4fa8;
+  --sf-blue-light: #6a9cf0;
+  --sf-blue-pale: #b9d1f9;
+
+  /* Dark theme, from the dashboard's brand and neutral ramps. */
+  --sf-dark-blue: oklch(0.5988 0.1837 259.4);
+  --sf-dark-blue-light: oklch(0.7100 0.1517 259.4);
+  --sf-dark-blue-pale: oklch(0.8000 0.0997 259.4);
+  --sf-dark-bg: oklch(0.1550 0.0100 264);
+  --sf-dark-bg-alt: oklch(0.1350 0.0080 264);
+  --sf-dark-bg-soft: oklch(0.1950 0.0120 264);
+  --sf-dark-text-1: oklch(0.9750 0.0035 264);
+  --sf-dark-text-2: oklch(0.7100 0.0160 264);
+  --sf-dark-text-3: oklch(0.5400 0.0200 264);
+  --sf-white: oklch(1 0 0);
+}
+
+:root {
+  --vp-font-family-base: "Sora Variable", system-ui, sans-serif;
+  --vp-font-family-mono: "JetBrains Mono Variable", ui-monospace, Menlo, monospace;
+
+  --vp-c-brand-1: var(--sf-blue-link);
+  --vp-c-brand-2: var(--sf-blue-deep);
+  --vp-c-brand-3: var(--sf-blue);
+  --vp-c-brand-soft: color-mix(in srgb, var(--sf-blue) 12%, transparent);
+
+  --vp-c-bg: var(--sf-paper);
+  --vp-c-bg-alt: var(--sf-wash);
+  --vp-c-bg-soft: var(--sf-wash-blue);
+  --vp-c-text-1: var(--sf-ink);
+  --vp-c-text-2: color-mix(in srgb, var(--sf-ink) 76%, transparent);
+  --vp-c-text-3: color-mix(in srgb, var(--sf-ink) 56%, transparent);
+  --vp-c-divider: var(--sf-line);
+  --vp-c-border: var(--sf-line-2);
+  --vp-c-gutter: var(--sf-line);
+}
+
+.dark {
+  --vp-c-brand-1: var(--sf-dark-blue-light);
+  --vp-c-brand-2: var(--sf-dark-blue-pale);
+  --vp-c-brand-3: var(--sf-dark-blue);
+  --vp-c-brand-soft: color-mix(in oklab, var(--sf-dark-blue) 20%, transparent);
+
+  --vp-c-bg: var(--sf-dark-bg);
+  --vp-c-bg-alt: var(--sf-dark-bg-alt);
+  --vp-c-bg-soft: var(--sf-dark-bg-soft);
+  --vp-c-text-1: var(--sf-dark-text-1);
+  --vp-c-text-2: var(--sf-dark-text-2);
+  --vp-c-text-3: var(--sf-dark-text-3);
+  --vp-c-divider: color-mix(in oklab, var(--sf-white) 9%, transparent);
+  --vp-c-border: color-mix(in oklab, var(--sf-white) 12%, transparent);
+  --vp-c-gutter: var(--sf-dark-bg-alt);
+}
+
+/* The copy button on code blocks: a small ghost button with Lucide's copy
+   icon, matching the page's own copy buttons, instead of VitePress's 40px
+   bordered square. The icon is a mask over `currentColor` so it follows the
+   theme, and "Copied" sits inside the button rather than in a tab beside it.
+   The `:hover.copied` selectors match VitePress's own, which are more
+   specific than the plain ones. */
+:root {
+  --sf-icon-copy: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='14' height='14' x='8' y='8' rx='2'/%3E%3Cpath d='M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2'/%3E%3C/svg%3E");
+  --sf-icon-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+}
+
+.vp-doc [class*='language-'] > button.copy {
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  height: 28px;
+  padding: 0 7px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: none;
+  color: var(--vp-c-text-2);
+  transition: opacity 0.2s, color 0.2s, background-color 0.2s, border-color 0.2s;
+}
+
+.vp-doc [class*='language-'] > button.copy::after {
+  content: "";
+  order: -1;
+  width: 14px;
+  height: 14px;
+  background-color: currentColor;
+  mask: var(--sf-icon-copy) center / contain no-repeat;
+}
+
+.vp-doc [class*='language-'] > button.copy:hover,
+.vp-doc [class*='language-'] > button.copy.copied,
+.vp-doc [class*='language-'] > button.copy:hover.copied {
+  border-color: var(--vp-c-divider);
+  border-radius: 6px;
+  color: var(--vp-c-text-1);
+  background-color: var(--vp-c-bg);
+  background-image: none;
+}
+
+.vp-doc [class*='language-'] > button.copy.copied::after {
+  mask-image: var(--sf-icon-check);
+}
+
+.vp-doc [class*='language-'] > button.copy.copied::before,
+.vp-doc [class*='language-'] > button.copy:hover.copied::before {
+  position: static;
+  transform: none;
+  border: 0;
+  padding: 0;
+  height: auto;
+  color: inherit;
+  background: none;
+}
+
+/* The design system tops out at weight 500. */
+.vp-doc :is(h1, h2, h3, h4, h5, h6, strong, th),
+.VPSidebarItem .text, .VPNavBarTitle .title, .VPDocAsideOutline .outline-title,
+.VPNavBarMenuLink { font-weight: 500; }
