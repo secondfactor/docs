@@ -2,11 +2,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { defineConfig } from "vitepress";
 
-// The client app and the API differ per environment. The variable names and
-// the local development defaults are the ones the dashboard's own frontend
-// build uses, so one set of values serves both.
-const appUrl = process.env.VITE_WEB_URL ?? "http://app.localhost:5173";
-const apiUrl = (process.env.VITE_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
+// The client app and the API the site links to. The public docs describe the
+// production API (every example calls api.secondfactor.ai), so the links
+// default to production too. The variable names are the ones the dashboard's
+// own frontend build uses, for a build that should point elsewhere.
+const appUrl = (process.env.VITE_WEB_URL ?? "https://app.secondfactor.ai").replace(/\/$/, "");
+const apiUrl = (process.env.VITE_API_URL ?? "https://api.secondfactor.ai").replace(/\/$/, "");
 // The marketing site, which has a single production origin.
 const siteUrl = "https://secondfactor.ai";
 

@@ -15,14 +15,14 @@ npm run build     # static site in .vitepress/dist/
 npm run preview   # serve the built site on http://localhost:4301
 ```
 
-The build reads two environment variables, the same ones the dashboard's
-frontend build uses. Both fall back to the local development origins when
-unset, so set them for any build that will be published:
+The site links to production by default, matching the examples in the pages,
+which all call `api.secondfactor.ai`. Two optional environment variables, the
+same ones the dashboard's frontend build uses, point a build elsewhere:
 
-| Variable | Used for | Example |
+| Variable | Used for | Default |
 |---|---|---|
-| `VITE_WEB_URL` | The "Dashboard" link in the header and footer. | `https://uat-app.secondfactor.ai` |
-| `VITE_API_URL` | The `llms.txt` link in the footer. | `https://uat-api.secondfactor.ai` |
+| `VITE_WEB_URL` | The "Dashboard" link in the header. | `https://app.secondfactor.ai` |
+| `VITE_API_URL` | The `llms.txt` link in the footer. | `https://api.secondfactor.ai` |
 
 ## Layout
 
