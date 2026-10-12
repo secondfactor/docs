@@ -1,7 +1,7 @@
 ---
 title: Get OTP status
 description: GET /v2/Services/{ServiceSid}/Verifications/{VerificationSid} — read the current state of a verification.
-order: 4
+order: 5
 ---
 
 # Get OTP status

@@ -1,7 +1,7 @@
 ---
 title: Verify OTP
 description: POST /v2/Services/{ServiceSid}/VerificationCheck — verify the OTP your user typed. 200 means it is correct.
-order: 3
+order: 4
 ---
 
 # Verify OTP

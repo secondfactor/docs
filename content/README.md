@@ -14,6 +14,10 @@ the code for you. You never store it.
 **There is no sandbox.** Every send delivers a real message and is charged, so
 test with a phone number you own.
 
+There are two ways to integrate: call this API from your server and draw your
+own screens, or redirect your user to our
+[hosted verification page](./hosted-verification.md), which draws them for you.
+
 ## Quickstart
 
 You need two things from the dashboard:
@@ -239,8 +243,10 @@ Also: [Authentication](./authentication.md), [Webhooks](./webhooks.md) and
 
 ## SDKs
 
-Libraries that wrap these endpoints, and the verification sessions that let us
-host the screens or let your frontend send codes without a proxy.
+Libraries for these endpoints and the
+[hosted verification page](./hosted-verification.md). The server libraries
+hold your API key; the browser library only opens the hosted page and reads
+the result, and never calls the API.
 
 | SDK | Package | Runs on |
 |---|---|---|
