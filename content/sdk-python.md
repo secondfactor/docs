@@ -1,6 +1,6 @@
 ---
 title: Python SDK
-description: The secondfactor package for Python servers. Create hosted and headless verification sessions, confirm them, and send and check codes directly.
+description: The secondfactor package for Python servers. Create hosted verification sessions, confirm them, and send and check codes directly.
 order: 11
 ---
 
@@ -11,8 +11,8 @@ module with no dependencies beyond the standard library, and needs Python 3.9
 or later.
 
 It runs on **your server** and holds your API key, which must never reach a
-browser or a mobile app. For the browser or React Native side of a headless
-session, use the [browser SDK](./sdk-js.md).
+browser or a mobile app. For the browser or React Native side of a hosted
+session, the [browser SDK](./sdk-js.md) opens the page and reads the result.
 
 ```bash
 pip install secondfactor      # or: uv add secondfactor
@@ -27,8 +27,10 @@ listed under **Settings → Hosted verification**.
 | Flow | Who draws the screens | Methods |
 |---|---|---|
 | Hosted session | We do. You redirect the user to our page and get them back on your return URL. | `create_session`, `verify_session` |
-| Headless session | You do, in your frontend with the [browser SDK](./sdk-js.md). Your API key stays on your server and no proxy is needed. | `create_session` with `mode="headless"`, `verify_session` |
 | Direct sends | You do, and every code goes through your server. | `send`, `check` |
+
+There is no headless flow in which your frontend calls our API. If you want
+your own screens, use direct sends from your server.
 
 Sessions are the recommended way in. They give you one call at the end,
 `verify_session`, that says whether the number was proven, and it succeeds
@@ -59,7 +61,7 @@ sf = SecondFactor(api_key=os.environ["SECONDFACTOR_API_KEY"])
 Raises `ValueError` when `api_key` is missing or `base_url` is not safe to send
 the key to.
 
-### create_session(to, mode="hosted", return_url=None, client_reference_id=None, template_sid=None)
+### create_session(to, return_url, client_reference_id=None, template_sid=None)
 
 Starts verifying a phone number and returns the
 [session object](#the-session-object). Creating a session is free; each code it
@@ -68,14 +70,12 @@ sends is charged.
 | Argument | Type | Description |
 |---|---|---|
 | `to` | str | Required. The phone number in E.164, for example `"+9779841000001"`. |
-| `mode` | str | `"hosted"` (the default) or `"headless"`: who draws the screens. |
-| `return_url` | str | Hosted only, and required there. Where we send the user back. Its origin must be listed under Settings → Hosted verification. |
+| `return_url` | str | Required. Where we send the user back. Its origin must be listed under Settings → Hosted verification. |
 | `client_reference_id` | str | Your own ID for this sign-in, such as your user's ID. It comes back from `verify_session`. |
 | `template_sid` | str | The message template to send the code with. Your default when omitted. |
 
-A hosted session returns `url`: redirect the user there. A headless session
-returns `client_token`: give it to your frontend. Either is returned only this
-once.
+The session returns `url`, the hosted page: redirect the user there. It is
+returned only this once.
 
 Store the returned `sid` server-side against the user's pending sign-in, for
 example in their session. It is what you confirm later.
@@ -90,7 +90,7 @@ session["sf_sid"] = created["sid"]
 return redirect(created["url"], code=303)
 ```
 
-### verify_session(stored_sid, return_token=None)
+### verify_session(stored_sid, return_token)
 
 Accepts the outcome of a session, **exactly once**, and returns the number that
 was proven.
@@ -98,7 +98,7 @@ was proven.
 | Argument | Type | Description |
 |---|---|---|
 | `stored_sid` | str | The `sid` you stored when you created the session. Never the `sf_session_id` from the return URL: anyone can edit a URL. |
-| `return_token` | str | Hosted sessions only: the `sf_return_token` query parameter from the return URL. A headless session needs none. |
+| `return_token` | str or None | The `sf_return_token` query parameter from the return URL. When it is missing, pass `None` and the call raises `missing_return_token`. |
 
 Returns a `dict`:
 
@@ -216,46 +216,18 @@ return this object as a `dict`.
 | Key | Type | Description |
 |---|---|---|
 | `sid` | str | The session SID. Store it server-side. |
-| `mode` | str | `hosted` or `headless`. |
 | `status` | str | `OPEN`, `VERIFIED`, `CANCELED`, `FAILED` or `EXPIRED`. |
 | `failure_reason` | str or None | Why a `FAILED` session failed: `max_sends`, `max_attempts`, or `send_refused:<code>` when we could not send to the number. |
 | `to` | str | The phone number being verified, in E.164. |
 | `client_reference_id` | str or None | Your own ID, as passed to `create_session`. |
 | `verification_sid` | str or None | The newest code the session sent (`VE…`). [Get OTP status](./get-verification.md) answers price and delivery questions about it. |
 | `sends` | int | How many codes the session has sent. |
-| `return_url` | str or None | Hosted sessions: where the user is sent back. |
+| `return_url` | str | Where the user is sent back. |
 | `confirmed` | bool | Whether `verify_session` has accepted this session. |
 | `expires_at` | str | When the session stops working. |
 | `date_created` | str | When the session was created. |
 | `date_completed` | str or None | When the session reached its final status. |
-| `url` | str | Hosted sessions, on creation only: the page to redirect the user to. |
-| `client_token` | str | Headless sessions, on creation only: the token for your frontend. |
+| `url` | str | On creation only: the hosted page to redirect the user to. |
 
-## Headless example
-
-The server half of a headless session, in Flask. The frontend half is on the
-[browser SDK](./sdk-js.md) page.
-
-```python
-@app.post("/verification/start")
-def start_verification():
-    created = sf.create_session(current_user.phone, mode="headless")
-    session["sf_sid"] = created["sid"]
-    return {"client_token": created["client_token"]}
-
-
-@app.post("/verification/done")
-def finish_verification():
-    stored_sid = session.pop("sf_sid", None)
-    if not stored_sid:
-        return {"verified": False}, 400
-    try:
-        result = sf.verify_session(stored_sid)
-    except SecondFactorError as error:
-        return {"verified": False, "reason": error.code}, 400
-    mark_phone_verified(current_user, result["phone"])
-    return {"verified": True}
-```
-
-A runnable Flask app with both session flows is in the package repository's
+A runnable Flask app with the hosted flow is in the package repository's
 `examples/flask_app.py`.

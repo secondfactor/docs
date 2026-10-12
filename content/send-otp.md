@@ -1,7 +1,7 @@
 ---
 title: Send OTP
 description: POST /v2/Services/{ServiceSid}/Verifications — send a one-time code to a phone number and get back a verification SID.
-order: 2
+order: 3
 ---
 
 # Send OTP

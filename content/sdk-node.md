@@ -1,6 +1,6 @@
 ---
 title: Node.js SDK
-description: The secondfactor package for Node.js servers. Create hosted and headless verification sessions, confirm them, and send and check codes directly.
+description: The secondfactor package for Node.js servers. Create hosted verification sessions, confirm them, and send and check codes directly.
 order: 10
 ---
 
@@ -10,8 +10,8 @@ The `secondfactor` package calls the API from your Node.js server. It has no
 dependencies, needs Node 18 or later, and includes type declarations.
 
 It runs on **your server** and holds your API key, which must never reach a
-browser or a mobile app. For the browser or React Native side of a headless
-session, use the [browser SDK](./sdk-js.md).
+browser or a mobile app. For the browser or React Native side of a hosted
+session, the [browser SDK](./sdk-js.md) opens the page and reads the result.
 
 ```bash
 npm install secondfactor
@@ -26,8 +26,10 @@ listed under **Settings → Hosted verification**.
 | Flow | Who draws the screens | Methods |
 |---|---|---|
 | Hosted session | We do. You redirect the user to our page and get them back on your return URL. | `createSession`, `verifySession` |
-| Headless session | You do, in your frontend with the [browser SDK](./sdk-js.md). Your API key stays on your server and no proxy is needed. | `createSession` with `mode: "headless"`, `verifySession` |
 | Direct sends | You do, and every code goes through your server. | `send`, `check` |
+
+There is no headless flow in which your frontend calls our API. If you want
+your own screens, use direct sends from your server.
 
 Sessions are the recommended way in. They give you one call at the end,
 `verifySession`, that says whether the number was proven, and it succeeds only
@@ -66,14 +68,12 @@ sends is charged.
 | Param | Type | Default | Description |
 |---|---|---|---|
 | `to` | string | — | Required. The phone number in E.164, for example `+9779841000001`. |
-| `mode` | `"hosted"` or `"headless"` | `"hosted"` | Who draws the screens. |
-| `returnUrl` | string | — | Hosted only, and required there. Where we send the user back. Its origin must be listed under Settings → Hosted verification. |
+| `returnUrl` | string | — | Required. Where we send the user back. Its origin must be listed under Settings → Hosted verification. |
 | `clientReferenceId` | string | — | Your own ID for this sign-in, such as your user's ID. It comes back from `verifySession`. |
 | `templateSid` | string | your default | The message template to send the code with. |
 
-A hosted session resolves with `url`: redirect the user there. A headless
-session resolves with `client_token`: give it to your frontend. Either is
-returned only this once.
+The session resolves with `url`, the hosted page: redirect the user there. It
+is returned only this once.
 
 Store the returned `sid` server-side against the user's pending sign-in, for
 example in their session. It is what you confirm later.
@@ -88,7 +88,7 @@ req.session.sfSid = session.sid;
 res.redirect(303, session.url);
 ```
 
-### verifySession(storedSid, returnToken?)
+### verifySession(storedSid, returnToken)
 
 Accepts the outcome of a session, **exactly once**, and resolves with the
 number that was proven.
@@ -96,7 +96,7 @@ number that was proven.
 | Param | Type | Description |
 |---|---|---|
 | `storedSid` | string | The `sid` you stored when you created the session. Never the `sf_session_id` from the return URL: anyone can edit a URL. |
-| `returnToken` | string | Hosted sessions only: the `sf_return_token` query parameter from the return URL. A headless session needs none. |
+| `returnToken` | string | The `sf_return_token` query parameter from the return URL. |
 
 Resolves with:
 
@@ -216,46 +216,18 @@ this object.
 | Field | Type | Description |
 |---|---|---|
 | `sid` | string | The session SID. Store it server-side. |
-| `mode` | string | `hosted` or `headless`. |
 | `status` | string | `OPEN`, `VERIFIED`, `CANCELED`, `FAILED` or `EXPIRED`. |
 | `failure_reason` | string or null | Why a `FAILED` session failed: `max_sends`, `max_attempts`, or `send_refused:<code>` when we could not send to the number. |
 | `to` | string | The phone number being verified, in E.164. |
 | `client_reference_id` | string or null | Your own ID, as passed to `createSession`. |
 | `verification_sid` | string or null | The newest code the session sent (`VE…`). [Get OTP status](./get-verification.md) answers price and delivery questions about it. |
 | `sends` | number | How many codes the session has sent. |
-| `return_url` | string or null | Hosted sessions: where the user is sent back. |
+| `return_url` | string | Where the user is sent back. |
 | `confirmed` | boolean | Whether `verifySession` has accepted this session. |
 | `expires_at` | string | When the session stops working. |
 | `date_created` | string | When the session was created. |
 | `date_completed` | string or null | When the session reached its final status. |
-| `url` | string | Hosted sessions, on creation only: the page to redirect the user to. |
-| `client_token` | string | Headless sessions, on creation only: the token for your frontend. |
+| `url` | string | On creation only: the hosted page to redirect the user to. |
 
-## Headless example
-
-The server half of a headless session. The frontend half is on the
-[browser SDK](./sdk-js.md) page.
-
-```js
-app.post("/verification/start", async (req, res) => {
-  const session = await sf.createSession({ to: req.user.phone, mode: "headless" });
-  req.session.sfSid = session.sid;
-  res.json({ clientToken: session.client_token });
-});
-
-app.post("/verification/done", async (req, res) => {
-  const storedSid = req.session.sfSid;
-  delete req.session.sfSid;
-  try {
-    const { phone } = await sf.verifySession(storedSid);
-    await markPhoneVerified(req.user, phone);
-    res.json({ verified: true });
-  } catch (error) {
-    if (!(error instanceof SecondFactorError)) throw error;
-    res.status(400).json({ verified: false, reason: error.code });
-  }
-});
-```
-
-A runnable Express app with both session flows is in the package repository's
+A runnable Express app with the hosted flow is in the package repository's
 `examples/express.js`.

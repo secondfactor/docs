@@ -1,7 +1,7 @@
 ---
 title: Authentication
 description: Send your API key in the X-API-Key header on every request.
-order: 1
+order: 2
 ---
 
 # Authentication
