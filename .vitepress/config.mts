@@ -167,5 +167,15 @@ export default defineConfig({
     // Static files sit at the repository root rather than inside `content/`,
     // so `content/` holds only the pages and stays a plain copy of `api_docs/`.
     publicDir: path.resolve(__dirname, "../public"),
+    resolve: {
+      // VitePress's way to replace one of its theme's own components. The
+      // outline beside each page is drawn by ours (see OutlineTrack.vue).
+      alias: [
+        {
+          find: /^.*\/VPDocAsideOutline\.vue$/,
+          replacement: path.resolve(__dirname, "theme/OutlineTrack.vue"),
+        },
+      ],
+    },
   },
 });
